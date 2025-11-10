@@ -25,5 +25,19 @@ public class DiscountRepository {
     public List<DiscountCode> findAll() {
         return new ArrayList<>(codes.values());
     }
+
+     /**
+     * Atomically mark the discount as used if it was not used before.
+     * Returns true if successful (we consumed it), false if it was already used or not found.
+     */
+    public boolean markAsUsedIfAvailable(String code) {
+        DiscountCode d = codes.get(code);
+        if (d == null) return false;
+        synchronized (d) {
+            if (d.isUsed()) return false;
+            d.setUsed(true);
+            return true;
+        }
+    }
 }
 
